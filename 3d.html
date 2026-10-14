@@ -181,7 +181,8 @@ const style = {
   ].filter(Boolean)
 };
 if (TERRAIN) style.terrain = { source: 'dem', exaggeration: 1.5 };
-const map = new maplibregl.Map({ container: 'map', attributionControl: false, maxPitch: 78, preserveDrawingBuffer: true, fadeDuration: 0, dragRotate: false, center: [60, 30], zoom: 1.2, pitch: 0, style });
+// preserveDrawingBuffer keeps the globe's WebGL frame readable after it is composited, which the recorder needs (MapLibre 5 takes it via canvasContextAttributes)
+const map = new maplibregl.Map({ container: 'map', attributionControl: false, maxPitch: 78, canvasContextAttributes: { preserveDrawingBuffer: true, antialias: true }, preserveDrawingBuffer: true, fadeDuration: 0, dragRotate: false, center: [60, 30], zoom: 1.2, pitch: 0, style });
 window.__map = map;
 const handlers = ['dragPan', 'scrollZoom', 'touchZoomRotate', 'keyboard', 'doubleClickZoom'];
 function setInteractive(on){ handlers.forEach(h => { if (map[h]) on ? map[h].enable() : map[h].disable(); }); }
@@ -372,7 +373,14 @@ function frame(dt){
   if (scene.plane && !S.playing) { const p = map.project(scene.plane.pos); if (p && isFinite(p.x)) off = [p.x - W / 2, p.y - (H / 2 + PADTOP / 2)]; }
   renderPlane(scene.plane, S.playing ? cam.pitch : map.getPitch(), S.playing ? S.camB : map.getBearing(), sc, off);
   draw(sc);
-  if (S.rec) { const r = S.rec, k = r.c.height / H; r.ctx.drawImage(map.getCanvas(), 0, 0, r.c.width, r.c.height); if (T.visible) r.ctx.drawImage(T.renderer.domElement, off[0] * k, (off[1] + PADTOP / 2) * k, r.c.width, r.c.height); r.ctx.drawImage(overlay, 0, 0, r.c.width, r.c.height); }
+  if (S.rec) {
+    const r = S.rec, k = r.c.height / H;
+    r.ctx.globalCompositeOperation = 'source-over';
+    r.ctx.fillStyle = '#02060d'; r.ctx.fillRect(0, 0, r.c.width, r.c.height);          // start every frame from a clean background
+    r.ctx.drawImage(map.getCanvas(), 0, 0, r.c.width, r.c.height);
+    if (T.visible) r.ctx.drawImage(T.renderer.domElement, off[0] * k, (off[1] + PADTOP / 2) * k, r.c.width, r.c.height);
+    r.ctx.drawImage(overlay, 0, 0, r.c.width, r.c.height);
+  }
 }
 
 /* ---------- 2D overlay: pins, photo card, HUD ---------- */
