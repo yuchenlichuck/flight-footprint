@@ -64,8 +64,12 @@ button:focus-visible,select:focus-visible{outline:2px solid var(--accent);outlin
 .maplibregl-canvas-container.maplibregl-touch-drag-pan,.maplibregl-canvas-container.maplibregl-touch-drag-pan .maplibregl-canvas{touch-action:pinch-zoom}
 .maplibregl-canvas-container.maplibregl-touch-zoom-rotate.maplibregl-touch-drag-pan,.maplibregl-canvas-container.maplibregl-touch-zoom-rotate.maplibregl-touch-drag-pan .maplibregl-canvas{touch-action:none}
 .maplibregl-canvas-container.maplibregl-touch-drag-pan.maplibregl-cooperative-gestures,.maplibregl-canvas-container.maplibregl-touch-drag-pan.maplibregl-cooperative-gestures .maplibregl-canvas{touch-action:pan-x pan-y}
+body.is-embed #hint{display:none!important}
+body.is-embed #controls{opacity:0;pointer-events:none;transition:opacity .2s ease}
+body.is-embed:hover #controls{opacity:1;pointer-events:auto}
 </style>
 
+<script>if(window.self!==window.top||/[?&]embed=1/.test(location.search))document.addEventListener('DOMContentLoaded',function(){document.body.classList.add('is-embed')});</script>
 <div id="stage">
   <div id="map" aria-label="三维地球"></div>
   <canvas id="overlay" aria-hidden="true"></canvas>
@@ -85,8 +89,8 @@ button:focus-visible,select:focus-visible{outline:2px solid var(--accent);outlin
   <div id="toast" hidden></div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/5.6.0/maplibre-gl.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="vendor/maplibre-gl.js"></script>
+<script src="vendor/three.min.js"></script>
 <script>
 (async function(){
 'use strict';
